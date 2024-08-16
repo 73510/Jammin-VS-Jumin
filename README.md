@@ -1,18 +1,4 @@
 # Jammin VS Jumin
- 2022 재민 VS 주민 게임 개발
-
-# Version 1.0
-- 기본 배드민턴 던지기, 상어 던지기 구현
-
-# Version 1.1
-- Ultimate Siba 모드 추가
-- 사랑 발사 모드 추가
-
-# Version 1.2
-- Ultimate Siba 모드에서 재민이 타격 시 재민이 날라가는 모션 추가
-- 수행평가 요구에 맞게 좌 - 우 배치를 상 - 하 배치로 바꾸며 화면 작아짐
-
-# Jammin VS Jumin
 2022 재민 VS 주민 게임 개발
 
 ## Version 1.0
