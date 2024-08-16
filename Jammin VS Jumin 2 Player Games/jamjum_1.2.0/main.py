@@ -1,14 +1,10 @@
 # 1 - 모듈 임포트
-#from __future__ import absolute_import, division, print_function
-
 import pygame
 import random
 import pyautogui
 import math
-
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 # 모든 전역 변수
 width, height = pyautogui.size()
 screen_size = (width * 0.4, height * 0.8)
@@ -18,20 +14,22 @@ obj_scale = 1.0
 charactersize = 3 * int(1 / 30 * width)  # 우선 가로만 맞추는걸로
 FPS = 60
 
+
+#colors
 sexy_pink = (245, 69, 221)
 toxic_green = (22, 241, 4)  # (0, 0, 0)#(140, 12, 80)#(1, 255, 251 )
 sexy_blue = (1, 255, 251)
 blue = (16, 34, 217)
 yello = (255, 243, 0)
 
-
+#    위치 (x, y) 와 직사각형에 대해 (x, y)를 중심으로 가지는 직사각형이 "온전히" 화면 안에 있는지의 여부 판단
 def inscreen(pos, rect):
     if pos[0] - rect.center[0] >= 0 and pos[0] + rect.center[0] <= screen_size[0] and 0 <= pos[1] - rect.center[1] and \
             pos[1] + rect.center[1] <= screen_size[1]:
         return True
     return False
 
-
+#    위치 (x, y) 와 직사각형에 대해 (x, y)를 중심으로 가지는 직사각형이 "온전히" 화면 밖에 있는지의 여부 판단
 def outofscreen(pos, rect):
     if pos[0] + rect.center[0] <= 0 and pos[0] - rect.center[0] >= screen_size[0] and 0 >= pos[1] + rect.center[1] and \
             pos[1] - rect.center[1] >= screen_size[1]:
@@ -43,7 +41,7 @@ def outofscreen(pos, rect):
 # obj를 위한 클래스 생성
 class py_object:  # surface(pygame surface), pos(list pair), show(bool)
 
-    # 생성자 함수, surf - surface, pos - position, show - 활성화 여부, lock - 이동시 x축 lock 여부
+    # 생성자 함수, surf - surface, pos - position, show - 활성화 여부, lock - 이동시 y축 lock 여부
     def __init__(self, surf, pos, show=True, angle=0, lock=False, org_img=False):
         self.surface = surf
         self.pos = pos  # object의 pos는 center위치로 저장되어있음
@@ -55,7 +53,7 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
             self.org_img = surf
         else:
             self.org_img = org_img
-
+    #다른 object과 부딫혔는지 여부 반환
     def collision(self, object):
         self_rect = self.surface.get_rect()  # 이후 object 의 rect를 상대위치만큼 이동시켜 줌
         # (centerx, centery) 된거니까
@@ -65,14 +63,14 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
         object_rect = object.surface.get_rect()
         object_rect.centerx += object.pos[0] - self.pos[0]  # + self_rect.centerx
         object_rect.centery += object.pos[1] - self.pos[1]  # + self_rect.centery
-
+        #(true일때 부딫힘)
         return self_rect.colliderect(object_rect) and (self.show and object.show)
 
-    def wallcollision(self):
+    def wallcollision(self): #화면 벽과 부딪혔는지의 여부 반환
         self_rect = self.surface.get_rect()
         return not inscreen(self.pos, self_rect)
 
-    def outofscreen(self):
+    def outofscreen(self): #오브젝트가 화면 밖으로 나갔는지의 여부
         rect = self.surface.get_rect()
         pos = self.pos
         if pos[0] + rect.center[0] <= 0 or pos[0] - rect.center[0] >= screen_size[0] or 0 >= pos[1] + rect.center[1] or \
@@ -81,21 +79,22 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
         else:
             return False
 
+    #vel 만큼 이동시켜줌
     def move(self, arg=lambda x, y: True):  # move의 vel은 단위벡터 두개
         vel = self.vel
         rect = self.surface.get_rect()
         next = [self.pos[0], self.pos[1]]
-        if self.lock:
+        if self.lock: #x축 고정시
             next[0] += vel[0]
         else:
             next[0] += vel[0]
             next[1] += vel[1]
 
-        if arg(next, rect):
+        if arg(next, rect): #제약 조건, 화면을 나가는 걸 허용할 지의 여부
             self.pos[0] = next[0]
             self.pos[1] = next[1]
 
-    def spin(self, vel, s_vel, dir):
+    def spin(self, vel, s_vel, dir):   #vel: 벡터, 속도(중심), s_vel: 각속도, dir: 각속도의 방향
         self.vel[0] = vel[0]
         self.vel[1] = vel[1]
         angle_ = (s_vel) / FPS
@@ -106,6 +105,7 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
         self.move(lambda x, y: not outofscreen(x, y))
 
     def throwed(self, vel, s_vel, dir):  # vel을 tuple(x, y)로 만듦)
+        #spin과 유사, 화면 밖으로 나갈 경우 self.show를 False로 반환
         self.vel[0] = vel[0]
         self.vel[1] = vel[1]
 
@@ -114,7 +114,7 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
         if self.outofscreen():
             self.show = False
 
-    def applykey(self, keytense4, vel):
+    def applykey(self, keytense4, vel): #두명의 플레이어에게 방향키 및 wasd 할당
         arg = lambda x, y: inscreen(x, y)
 
         if keytense4[0]:
@@ -133,19 +133,20 @@ class py_object:  # surface(pygame surface), pos(list pair), show(bool)
         self.move(lambda x, y: inscreen(x, y))
 
 
-def get_center_coord(object):
+def get_center_coord(object): #오브젝트의 중심 반환
     rect = object.surface.get_rect()
     return (object.pos[0] - rect.center[0], object.pos[1] - rect.center[1])
 
 
 def blit_all(objects):  # blit by center coordinate
+    #오브젝트 list 받아서 전부다 object, object.pos에 blit 시킴
     for obj in objects:
         blit_pos = get_center_coord(obj)
         if obj.show:
             screen.blit(obj.surface, blit_pos)
 
 
-def resizeimg(surface, width):
+def resizeimg(surface, width): #이미지를 너비 기준으로 확대/축소
     rect = surface.get_rect()
     a = width / rect.width
     return pygame.transform.scale(surface, (width, rect.height * a))
@@ -154,7 +155,7 @@ def resizeimg(surface, width):
 # 2 - 게임 변수 초기화
 # 2.1 - 게임 화면
 
-def init_game():
+def init_game(): #게임 시작시 초기화할 항목
     global screen, fpsClock, score, sharkimg_original, sharkimg_resized
     global black, white
 
@@ -213,9 +214,10 @@ def init_game():
     3 : jammin_throwed_tick
     4 : jammin_charged
     5 : jammin_loving
-    '''  # 이거 그냥 대충, key press 일때 tick 업데이트하고  keyup일때 shootstart & tick처리 shootfinish
+    '''  # key press 일때 tick 업데이트하고  keyup일때 shootstart & tick처리 shootfinish
     event_jamshootfinished = pygame.event.Event(pygame.USEREVENT, attr1='jamshootfinished')
     event_jamshootstart = pygame.event.Event(pygame.USEREVENT, attr1="jamshootstart")
+    #각각의 이벤트 설정
     jamshoot_var["finished"] = event_jamshootfinished
     jamshoot_var["start"] = event_jamshootstart
     jamshoot_var["throwing"] = False
@@ -228,6 +230,7 @@ def init_game():
 
     keytense_wsad = [0, 0, 0, 0]
     keytense_arrow = [0, 0, 0, 0]
+
     black = (0, 0, 0)
     white = (255, 255, 255)
 
@@ -359,7 +362,7 @@ class init_object:#물건을 던질 때 초기화되는 항목
 
 
 # 4 - 글자 출력
-def text(arg, coord, fontsize, fontcolor):
+def text(arg, coord, fontsize, fontcolor): #arg: 텍스트, coord : 위치 (중심위치), fontsize : 폰트크기, fontcolor : rgb tuple (r, g, b)
     x = coord[0]
     y = coord[1]
     font = pygame.font.Font('./public-pixel-font/arcadelit.ttf', fontsize)
@@ -369,8 +372,10 @@ def text(arg, coord, fontsize, fontcolor):
     textRect.centery = y
     screen.blit(text, textRect)
 
+    return textRect
 
-def start_screen():
+
+def start_screen(): #시작화면
     text_scale = int(1 / 40 * screen_size[0] * obj_scale)
     screen.fill(white)
     screen_center = (screen_size[0] / 2, screen_size[1] / 2)
@@ -382,7 +387,7 @@ def start_screen():
     jamminface_spinned = resizeimg(pygame.image.load("./img/jamminface.png"), charactersize)
     jamminface_spinned = pygame.transform.rotate(jamminface_spinned, 0)
 
-
+ #주민이의 얼굴과 재민이와 하트와 text를 출력한다.
     love2 = pygame.image.load("./img/love.png")
     love2 = resizeimg(love2, 3 * charactersize)
     love_rect = love2.get_rect()
@@ -417,7 +422,7 @@ def start_screen():
         pygame.display.update()
         clock.tick(60)
 
-
+#그림자 글씨
 def dropShadowText(screen, text, size, x, y, colour=(255, 255, 255), drop_colour=(128, 128, 128),
                    font='./public-pixel-font/arcadelit.ttf'):
     # how much 'shadow distance' is best?
@@ -435,7 +440,7 @@ def dropShadowText(screen, text, size, x, y, colour=(255, 255, 255), drop_colour
     screen.blit(text_bitmap, r2)
 
 
-def end_screen(winner):
+def end_screen(winner): #마지막 장면
     black = (0, 0, 0)
     global gta_ending, text_scale, screen_center
     screen_center = (screen_size[0] / 2, screen_size[1] / 2)
@@ -470,11 +475,11 @@ def end_screen(winner):
     proceed = False
     tense = True
     objects = []
-    if winner == "jumin":
+    if winner == "jumin": #주민이 성공할 떄 사진
         juminpic = random.choice(juminwin)
         objects.append(juminpic)
 
-    if winner == "jammin":
+    if winner == "jammin": #재민이 성공할 떄 사진
         objects.append(random.choice(jamminwin))
 
     gta_ending.play()
@@ -512,7 +517,7 @@ def end_screen(winner):
     gta_ending.fadeout(fadeoutlength)
 
 
-def get_key(events):
+def get_key(events): #pygame.event 큐를 처리하는 if문 들어가 있는 함수, 여기서 throw에 대한 것도 처리함
     global keytense_wsad, keytense_arrow
     global juminthrow, jamminthrow
     global juminbadmintonposinit
@@ -521,7 +526,7 @@ def get_key(events):
     for event in events:  # 나중에 키보드 입력 함수 따로 만들기
         if event.type == pygame.QUIT:
             exit()
-        if event.type == pygame.KEYDOWN:# wasd에 대해 keytense_wasd 지정
+        if event.type == pygame.KEYDOWN:  # wasd에 대해 keytense_wasd 지정
             if event.key == pygame.K_w:
                 keytense_wsad[0] = 1
             elif event.key == pygame.K_s:
@@ -531,7 +536,7 @@ def get_key(events):
             elif event.key == pygame.K_d:
                 keytense_wsad[3] = 1
 
-            elif event.key == pygame.K_LEFTBRACKET:# 방향키에 대해 같은 작업(keytense_arrow)
+            elif event.key == pygame.K_LEFTBRACKET:  # 방향키에 대해 같은 작업(keytense_arrow)
                 keytense_arrow[0] = 1
             elif event.key == pygame.K_QUOTE:
                 keytense_arrow[1] = 1
@@ -546,7 +551,8 @@ def get_key(events):
             if not (jamshoot_var['loving'] or jamshoot_var['throwing']):  # 재민이가 날아가는중, 사랑하는 중엔 공격 불가
                 if event.key == pygame.K_MINUS: pygame.event.post(shark_var[2])
 
-            if event.key == pygame.K_EQUALS and jamshoot_var['throwing'] == False and jamshoot_var['loving'] == False:  # 충전키가 눌렸고 날아가는 중이 아닐때
+            if event.key == pygame.K_EQUALS and jamshoot_var['throwing'] == False and jamshoot_var[
+                'loving'] == False:  # 충전키가 눌렸고 날아가는 중이 아닐때
                 shiftpressed = True
                 jamshoot_var['thrown_tick'] = pygame.time.get_ticks()
             elif event.key == pygame.K_BACKSPACE and jamshoot_var["throwing"] == False and jamshoot_var[
@@ -556,7 +562,7 @@ def get_key(events):
 
             elif event.key == pygame.K_ESCAPE:
                 exit()
-        elif event.type == pygame.KEYUP:#wasd, 방향키가 눌리지 않았을 떄
+        elif event.type == pygame.KEYUP:  # wasd, 방향키가 눌리지 않았을 떄
             if event.key == pygame.K_w:
                 keytense_wsad[0] = 0
             elif event.key == pygame.K_s:
@@ -574,7 +580,8 @@ def get_key(events):
             elif event.key == pygame.K_RETURN:
                 keytense_arrow[3] = 0
 
-            elif event.key == pygame.K_EQUALS and jamshoot_var['throwing'] == False and jamshoot_var['loving'] == False: #사랑 충전중
+            elif event.key == pygame.K_EQUALS and jamshoot_var['throwing'] == False and jamshoot_var[
+                'loving'] == False:  # 사랑 충전중
                 jamshoot_var["thrown_tick"] = pygame.time.get_ticks() - jamshoot_var["thrown_tick"]
                 jamshoot_var["charged"] = True
                 shiftpressed = False
@@ -632,7 +639,7 @@ def get_key_siba(events):
     for event in events:
         if event.type == pygame.QUIT:
             exit()
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN: #입력 받기
             if event.key == pygame.K_w:
                 keytense_wsad[0] = 1
             elif event.key == pygame.K_s:
@@ -658,8 +665,7 @@ def get_key_siba(events):
 
                 global jamfly
 
-                if jumin.collision(jammin) and not jamfly:
-                    print("collision occured and jamfly == False")
+                if jumin.collision(jammin) and not jamfly: #여기서 헬창시바와 재민이와 충돌 여부 판단, 재민이가 튕겨나갈 속력 계산
                     velconst = 30
                     if jammin.pos[0] == jumin.pos[0] :
                         jammin.vel = [0, 50]
@@ -673,7 +679,6 @@ def get_key_siba(events):
                             jammin.vel = [-velconst*cos_, velconst * sin_]
                         else :
                             jammin.vel = [velconst * cos_, velconst * sin_]
-                    print(jammin.vel)
                     jamfly = True
                     JAMMIN_HP -= 30
                     oof.play()
@@ -703,6 +708,7 @@ def get_key_siba(events):
                 qpress = False
 
 
+#충돌인지 판단
 def i_got_shot():
     global jumin, jammin, badminton, wham, wham_start_t, JUMIN_HP, JAMMIN_HP
 
@@ -768,7 +774,7 @@ def i_got_shot():
 
     if pygame.time.get_ticks() - wham_start_t >= 1000:
         wham.show = False
-
+    #사랑 당하고 난 후 데미지를 준다
     if pygame.time.get_ticks() - love_start_t >= 3000 and jamshoot_var['loving'] == True:
         oof.play()
         damage = (jamshoot_var['thrown_tick'] // 10)**2 / 2000 +5
@@ -776,7 +782,7 @@ def i_got_shot():
         init_object.jamminrst()
         love.show = False
         lovesounds.stop()
-
+    #사랑 당하는 중일떄 화면
     if pygame.time.get_ticks() - love_start_t < 3000 and jamshoot_var['loving'] == True:
         _img = pygame.image.load("./img/jammin_win/3.png")
         rect_size = (pygame.time.get_ticks() - love_start_t) // 2 + 100
@@ -786,10 +792,8 @@ def i_got_shot():
         screen.blit(_img, [screen_size[0] // 2 - imgrect.centerx, screen_size[1] // 2 - imgrect.centery])
 
 
-def HP_display():
+def HP_display(): #HP에 따라서 보이는 HP object 결정
     global JAMMIN_HP, JUMIN_HP
-
-    # print(JAMMIN_HP, JUMIN_HP)
 
     for i in range(0, 11):
         HP_jammin_obj[i].show = False
@@ -813,7 +817,7 @@ def ultimate_screensiba():#등장 초기 장면 재생
 
     text_scale = int(1 / 40 * screen_size[0] * obj_scale)
     for i in range(30):
-        color = 225 //(i % 15+1) +30
+        color = 225 //(i % 15+1) +30 #색을 변화시키면서 blit
         color2 = (color-30, color-30, color-30)
         color = (color, 0, 0)
 
@@ -851,8 +855,7 @@ def ultimate_screensiba():#등장 초기 장면 재생
     jumin.pos = [width // 2, height // 10 * 2]
     johncena.fadeout(5000)
 
-
-
+#메인 플레이 재생
 def main_play():
     global jumin, jammin, throwvel, event_tick, wham, sibaactivate, JUMIN_HP, qpress, JAMMIN_HP
     qpress = False
@@ -982,6 +985,7 @@ def main_play():
                 item.vel = [0, 10]
                 heal_items.append(item)
 
+            #힐템 이동시키고 충돌 확인
             for heal_item in heal_items:
                 objects.append(heal_item)
                 if heal_item.show:
@@ -1032,8 +1036,7 @@ def main_play():
             running = False
             return 'jammin'
 
-
-def dyingeffect(winner):
+def dyingeffect(winner): #마지막에 죽는 화면
     jumindeadimg = pygame.image.load('./img/jumindead.png')
     jammindeadimg = pygame.image.load('./img/jammindead.png')
 
@@ -1046,10 +1049,10 @@ def dyingeffect(winner):
 
     oooooof.play()
 
-    if winner == 'jammin':
+    if winner == 'jammin': #재민이가 이기면
         jumin.surface = jumindeadimg
         jumin.org_img = jumindeadimg
-    elif winner == 'jumin':
+    elif winner == 'jumin': #주민이가 이기면
         jammin.surface = jammindeadimg
         jammin.org_img = jammindeadimg
 
@@ -1094,9 +1097,11 @@ def dyingeffect(winner):
 init_game()
 start_screen()  # 시작화면 재생
 
+#메인 실행 코드
+#무한루프
 while (1):
-    winner = main_play()
-    dyingeffect(winner)
-    end_screen(winner)
+    winner = main_play() #main play 실행
+    dyingeffect(winner) #죽임
+    end_screen(winner) #종료 화면
 
     init_game()
