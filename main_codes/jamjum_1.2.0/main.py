@@ -5,6 +5,10 @@ import pygame
 import random
 import pyautogui
 import math
+
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # 모든 전역 변수
 width, height = pyautogui.size()
 screen_size = (width * 0.4, height * 0.8)
