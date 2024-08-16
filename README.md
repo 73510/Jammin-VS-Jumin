@@ -1,2 +1,54 @@
 # Jammin VS Jumin
  2022 재민 VS 주민 게임 개발
+
+# Version 1.0
+- 기본 배드민턴 던지기, 상어 던지기 구현
+
+# Version 1.1
+- Ultimate Siba 모드 추가
+- 사랑 발사 모드 추가
+
+# Version 1.2
+- Ultimate Siba 모드에서 재민이 타격 시 재민이 날라가는 모션 추가
+- 수행평가 요구에 맞게 좌 - 우 배치를 상 - 하 배치로 바꾸며 화면 작아짐
+
+아래는 제공하신 정보에 설치 방법을 추가한 `README.md` 파일의 예시입니다:
+
+```markdown
+# Jammin VS Jumin
+2022 재민 VS 주민 게임 개발
+
+## Version 1.0
+- 기본 배드민턴 던지기, 상어 던지기 구현
+
+## Version 1.1
+- Ultimate Siba 모드 추가
+- 사랑 발사 모드 추가
+
+## Version 1.2
+- Ultimate Siba 모드에서 재민이 타격 시 재민이 날라가는 모션 추가
+- 수행평가 요구에 맞게 좌 - 우 배치를 상 - 하 배치로 바꾸며 화면 작아짐
+
+## Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/Jammin-VS-Jumin.git
+   cd Jammin-VS-Jumin
+   ```
+
+2. **Create and activate a virtual environment (optional but recommended)**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: .\venv\Scripts\activate
+   ```
+
+3. **Install the required packages**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Run the game**:
+   ```bash
+   python main.py
+   ```
