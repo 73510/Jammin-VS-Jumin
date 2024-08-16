@@ -29,6 +29,9 @@
 - Ultimate Siba 모드에서 재민이 타격 시 재민이 날라가는 모션 추가
 - 수행평가 요구에 맞게 좌 - 우 배치를 상 - 하 배치로 바꾸며 화면 작아짐
 
+## 게임 설명을 영상으로 보고 싶다면?
+[여기서 영상을 확인하세요](https://youtu.be/RG8SuWASbsY)
+
 ## Installation
 
 1. **Clone the repository**:
